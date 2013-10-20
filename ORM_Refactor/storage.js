@@ -1,8 +1,6 @@
-var get = function(options, Sequelize, sequelize){
-  var result;
-  var flag = false;
+var get = function(response, options, Sequelize, sequelize){
+  var result = [];
 
-  // get room_id
   var getRoom = function(){
     var Room = sequelize.define('room', {
       roomName: Sequelize.STRING
@@ -15,22 +13,35 @@ var get = function(options, Sequelize, sequelize){
   };
 
   var getMessages = function(room_id){
-    var Message = sequelize.define('user', {
+    var Message = sequelize.define('message', {
       user_id: Sequelize.INTEGER,
       room_id: Sequelize.INTEGER,
       text: Sequelize.STRING
     });
     Message.sync().success(function(){
       Message.findAll({where: {room_id: room_id}}).success(function(messages){
-        result = messages;
-        flag = true;
+        console.log("MESSAGE LENGTH", messages.length);
+        for(var i = 0; i < messages.length; i++){
+          result.push({
+            username: messages[i].user_id,
+            room: messages[i].room_id,
+            text: messages[i].text
+          });
+          console.log(result[i]);
+        }
+        responseBody = JSON.stringify(result);
+        response.end(responseBody);
       });
     });
   };
-  while(!flag){
-    // wait for async callbacks to finish before moving on
-  }
-  return result;
+
+  var getUsername = function(user_id){
+
+  };
+
+  // start callback chain:
+  // getRoom, which will call getMessages, which will end the response
+  getRoom();
 };
 
 var set = function(message, Sequelize, sequelize){

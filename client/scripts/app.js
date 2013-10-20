@@ -90,7 +90,7 @@ var render = function (data) {
   }
 
 
-  setTimeout(getData,2000);
+  setTimeout(getData,10000);
 };
 
 var sendData = function(data) {

@@ -31,6 +31,8 @@ var handleRequest = function(request, response, Sequelize, sequelize) {
       headers['Content-Type'] = (pathname === '/styles/styles.css') ? "text/css" : "text/javascript";
       responseBody = fs.readFileSync(path.join(__dirname, '../client', pathname));
     }
+    response.writeHead(statusCode, headers);
+    response.end(responseBody);
   };
 
   var storageAccess = function(){
@@ -44,12 +46,14 @@ var handleRequest = function(request, response, Sequelize, sequelize) {
         storage.set(JSON.parse(data), Sequelize, sequelize);
         responseBody = "OK";
       });
+      response.writeHead(statusCode, headers);
+      response.end(responseBody);
     } else if (request.method === 'GET') {
       headers['Content-Type'] = "application/json";
       statusCode = 200;
       var options = parseQueryString(request.url);
-      var messages = storage.get(options, Sequelize, sequelize);
-      responseBody = JSON.stringify(messages);
+      response.writeHead(statusCode, headers);
+      storage.get(response, options, Sequelize, sequelize);
     }
   };
 
@@ -58,6 +62,8 @@ var handleRequest = function(request, response, Sequelize, sequelize) {
     statusCode = 200;
     rooms = storage.getRooms();
     responseBody = JSON.stringify(rooms);
+    response.writeHead(statusCode, headers);
+    response.end(responseBody);
   };
 
   var router = {
@@ -74,8 +80,8 @@ var handleRequest = function(request, response, Sequelize, sequelize) {
   if(router[pathname]){
     router[pathname]();
   }
-  response.writeHead(statusCode, headers);
-  response.end(responseBody);
+  // response.writeHead(statusCode, headers);
+  // response.end(responseBody);
 };
 
   var defaultCorsHeaders = {
